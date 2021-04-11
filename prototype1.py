@@ -1,6 +1,34 @@
+#!/usr/bin/env Python3
 import numpy as np
 import pandas as pd
+import PySimpleGUI as sg
 
+sg.ChangeLookAndFeel('GreenTan')
+
+# ------ Menu Definition ------ #
+menu_def = [['File', ['Open', 'Save', 'Exit', 'Properties']],
+            ['Edit', ['Paste', ['Special', 'Normal', ], 'Undo'], ],
+            ['Help', 'About...'], ]
+
+layout = [
+    [sg.Text('Choose the Data CSV', size=(35, 1))],
+    [sg.Text('Data CSV', size=(15, 1), auto_size_text=False, justification='right'),
+        sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Choose the Answer Key CSV', size=(35, 1))],
+    [sg.Text('Answer Key', size=(15, 1), auto_size_text=False, justification='right'),
+        sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Choose a Destination Folder for the Results', size=(35, 1))],
+    [sg.Text('Destination Folder', size=(15, 1), auto_size_text=False, justification='right'),
+        sg.InputText('Default Folder'), sg.FolderBrowse()],
+    [sg.Submit(tooltip='Click to submit this window'), sg.Cancel()]
+]
+
+
+window = sg.Window('Workplace Assessment Tool', layout, default_element_size=(40, 1), grab_anywhere=False)
+
+event, values = window.read()
+
+window.close()
 
 def respOut(argument):
     response = {
@@ -71,8 +99,8 @@ def dirIn(argument):
     return response.get(argument, lambda: "Invalid Direction ID")
 
 
-key = pd.read_csv("answer_sheet.csv")
-df = pd.read_csv("raw.csv")
+key = pd.read_excel(values[0], "AnswerSheet")
+df = pd.read_excel(values[1], "RawData")
 
 question_num = len(key)
 users = len(df)

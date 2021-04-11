@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env Python3
 # coding: utf-8
 
 # In[2]:
@@ -8,75 +8,109 @@ import numpy as np
 import pandas as pd
 from math import pi
 import matplotlib.pyplot as plt
+import PySimpleGUI as sg
+
+sg.ChangeLookAndFeel('GreenTan')
+
+# ------ Menu Definition ------ #
+menu_def = [['File', ['Open', 'Save', 'Exit', 'Properties']],
+            ['Edit', ['Paste', ['Special', 'Normal', ], 'Undo'], ],
+            ['Help', 'About...'], ]
+
+layout = [
+    [sg.Text('Choose the Data CSV', size=(35, 1))],
+    [sg.Text('Data CSV', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Choose the Answer Key CSV', size=(35, 1))],
+    [sg.Text('Answer Key', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Choose a Destination Folder for the Results', size=(35, 1))],
+    [sg.Text('Destination Folder', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default Folder'), sg.FolderBrowse()],
+    [sg.Submit(tooltip='Click to submit this window'), sg.Cancel()]
+]
+
+window = sg.Window('Workplace Assessment Tool', layout, default_element_size=(40, 1), grab_anywhere=False)
+
+event, values = window.read()
+
+window.close()
+
 
 def respOut(argument):
-  response = {
-    "rarely": 1, 
-    "sometimes": 2, 
-    "almost always": 3
-  }
-  return response.get(argument, lambda: "Invalid Response Name")
+    response = {
+        "rarely": 1,
+        "sometimes": 2,
+        "almost always": 3
+    }
+    return response.get(argument, lambda: "Invalid Response Name")
+
 
 def langOut(argument):
-  language = {
-    "Engagement": 1, 
-    "Consideration": 2, 
-    "Candor": 3,
-    "Order": 4, 
-    "Recognition": 5,
-    "Time Commitment": 6,
-    "Transparency": 7
-  }
-  return language.get(argument, lambda: "Invalid Language Name")
+    language = {
+        "Engagement": 1,
+        "Consideration": 2,
+        "Candor": 3,
+        "Order": 4,
+        "Recognition": 5,
+        "Time Commitment": 6,
+        "Transparency": 7
+    }
+    return language.get(argument, lambda: "Invalid Language Name")
+
 
 def langIn(argument):
-  language = {
-    1: "Engagement",
-    2: "Consideration",
-    3: "Candor",
-    4: "Order",
-    5: "Recognition",
-    6: "Time Commitment",
-    7: "Transparency"
-  }
-  return language.get(argument, lambda: "Invalid Language ID")
+    language = {
+        1: "Engagement",
+        2: "Consideration",
+        3: "Candor",
+        4: "Order",
+        5: "Recognition",
+        6: "Time Commitment",
+        7: "Transparency"
+    }
+    return language.get(argument, lambda: "Invalid Language ID")
+
 
 def levOut(argument):
-  level = {
-    "Senior": 10,
-    "Peer": 20,
-    "Junior": 30
-  }
-  return level.get(argument, lambda: "Invalid Level Name")
+    level = {
+        "Senior": 10,
+        "Peer": 20,
+        "Junior": 30
+    }
+    return level.get(argument, lambda: "Invalid Level Name")
+
 
 def levIn(argument):
-  level = {
-    1: "Senior",
-    2: "Peer",
-    3: "Junior"
-  }
-  return level.get(argument, lambda: "Invalid Level ID")
+    level = {
+        1: "Senior",
+        2: "Peer",
+        3: "Junior"
+    }
+    return level.get(argument, lambda: "Invalid Level ID")
+
 
 def dirOut(argument):
-  direction = {
-    "Give": 100,
-    "Get": 200
-  }
-  return direction.get(argument, lambda: "Invalid Direction")
-  
+    direction = {
+        "Give": 100,
+        "Get": 200
+    }
+    return direction.get(argument, lambda: "Invalid Direction")
+
+
 def dirIn(argument):
-  response = {
-    1: "Give",
-    2: "Get"
-  }
-  return response.get(argument, lambda: "Invalid Direction ID")
+    response = {
+        1: "Give",
+        2: "Get"
+    }
+    return response.get(argument, lambda: "Invalid Direction ID")
 
 
 # In[3]:
 
 
-key = pd.read_csv("working.csv")
-df = pd.read_csv("Workplace Communication Assessment_3.2.2021.xlsx - RawData.csv")
+key = pd.read_excel(values[0], "AnswerSheet")
+df = pd.read_excel(values[1], "RawData")
 
 question_num = len(key)
 users = len(df)
@@ -84,7 +118,6 @@ users = len(df)
 output = [0] * question_num
 for q in range(question_num):
     output[q] = levOut(key.Level[q]) + dirOut(key.Direction[q]) + langOut(key.Language[q])
-
 
 # In[4]:
 
@@ -121,8 +154,7 @@ def toTable(index):
     get["Get"] = languages
     giveValues = []
     getValues = []
-    
-    
+
     for lev in range(3):
         totals = []
         for lang in range(7):
@@ -132,7 +164,7 @@ def toTable(index):
     give["Peers"] = giveValues[1]
     give["Juniors"] = giveValues[2]
     give["Total"] = [sum(col) for col in zip(*giveValues)]
-    
+
     for lev in range(3):
         totals = []
         for lang in range(7):
@@ -142,7 +174,7 @@ def toTable(index):
     get["Peers"] = getValues[1]
     get["Juniors"] = getValues[2]
     get["Total"] = [sum(col) for col in zip(*getValues)]
-    
+
     return give, get
 
 
@@ -150,7 +182,7 @@ def toTable(index):
 
 
 def toRadar(df):
-    categories=df.iloc[:,0]
+    categories = df.iloc[:, 0]
     types = ["Senior", "Peer", "Junior"]
     N = len(categories)
 
@@ -164,19 +196,19 @@ def toRadar(df):
 
     # Draw ylabels
     ax.set_rlabel_position(1)
-    plt.yticks([2,4,6,8], [2,4,6,8], color="grey", size=7)
-    plt.ylim(0,10)
+    plt.yticks([2, 4, 6, 8], [2, 4, 6, 8], color="grey", size=7)
+    plt.ylim(0, 10)
 
     colors = ['b', 'or', 'g']
 
     for i in range(3):
-        values=df.T.iloc[i+1].values.flatten().tolist()
+        values = df.T.iloc[i + 1].values.flatten().tolist()
         values += values[:1]
         ax.plot(angles, values, linewidth=2, linestyle='solid', label=types[i])
         ax.fill(angles, values, colors[i], alpha=.1)
-        
+
     count = 0
-    for label,rot in zip(ax.get_xticklabels(),angles):
+    for label, rot in zip(ax.get_xticklabels(), angles):
         if count != 0:
             if count < 4:
                 label.set_horizontalalignment("left")
@@ -185,7 +217,7 @@ def toRadar(df):
         else:
             label.set_horizontalalignment("center")
         count = count + 1
-            
+
     plt.legend(loc='upper right', bbox_to_anchor=(0, .3))
     return plt
 
@@ -195,15 +227,13 @@ def toRadar(df):
 
 index = 7
 print(df["First and Last Name"][index])
-display(toTable(index)[0])
-display(toTable(index)[1])
-
+print(toTable(index)[0])
+print(toTable(index)[1])
 
 # In[12]:
 
 
 print(df["First and Last Name"])
-
 
 # In[16]:
 
@@ -212,27 +242,22 @@ i = 7
 print(df["First and Last Name"][i])
 tables = toTable(i)
 
-
 # In[59]:
 
 
-display(toTable(i)[0])
-
+print(toTable(i)[0])
 
 # In[18]:
 
 
-display(toTable(i)[1])
-
+print(toTable(i)[1])
 
 # In[19]:
 
 
 toRadar(toTable(i)[0]).show()
 
-
 # In[21]:
 
 
 toRadar(toTable(i)[1]).show()
-
