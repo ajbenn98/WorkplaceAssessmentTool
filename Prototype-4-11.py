@@ -32,7 +32,7 @@ layout = [
 
 window = sg.Window('Workplace Assessment Tool', layout, default_element_size=(40, 1), grab_anywhere=False)
 
-event, values = window.read()
+event, dirs = window.read()
 
 window.close()
 
@@ -109,8 +109,8 @@ def dirIn(argument):
 # In[3]:
 
 
-key = pd.read_excel(values[0], "AnswerSheet")
-df = pd.read_excel(values[1], "RawData")
+key = pd.read_excel(dirs[0], "AnswerSheet")
+df = pd.read_excel(dirs[1], "RawData")
 
 question_num = len(key)
 users = len(df)
@@ -252,12 +252,19 @@ print(toTable(i)[0])
 
 print(toTable(i)[1])
 
-# In[19]:
-
-
-toRadar(toTable(i)[0]).show()
-
-# In[21]:
-
-
-toRadar(toTable(i)[1]).show()
+i = 0
+for user in df["First and Last Name"]:
+    final_path = "{}/{}.png".format(dirs[2], user)
+    fig = toRadar(toTable(i)[1])
+    fig.savefig(final_path)
+    fig.clf()
+    i = i + 1
+# # In[19]:
+#
+#
+# toRadar(toTable(i)[0]).show()
+#
+# # In[21]:
+#
+#
+# toRadar(toTable(i)[1]).show()
