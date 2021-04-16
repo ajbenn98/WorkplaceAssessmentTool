@@ -6,6 +6,7 @@
 
 import numpy as np
 import pandas as pd
+import plotly.figure_factory as ff
 from math import pi
 import matplotlib.pyplot as plt
 import PySimpleGUI as sg
@@ -254,11 +255,17 @@ print(toTable(i)[1])
 
 i = 0
 for user in df["First and Last Name"]:
-    final_path = "{}/{}.png".format(dirs[2], user)
-    fig = toRadar(toTable(i)[1])
-    fig.savefig(final_path)
-    fig.clf()
+    give, get = toTable(i)
+    get_path = "{}/{} GET.png".format(dirs[2], user)
+    giv_path = "{}/{} GIVE.png".format(dirs[2], user)
+    get_fig = toRadar(toTable(i)[1])
+    giv_fig = toRadar(toTable(i)[0])
+    get_fig.savefig(get_path)
+    giv_fig.savefig(giv_path)
+    get_fig.clf()
+    giv_fig.clf()
     i = i + 1
+
 # # In[19]:
 #
 #
