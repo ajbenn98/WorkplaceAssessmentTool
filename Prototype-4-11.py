@@ -6,7 +6,7 @@
 
 import numpy as np
 import pandas as pd
-import plotly.figure_factory as ff
+import dataframe_image as dfi
 from math import pi
 import matplotlib.pyplot as plt
 import PySimpleGUI as sg
@@ -110,8 +110,8 @@ def dirIn(argument):
 # In[3]:
 
 
-key = pd.read_excel(dirs[0], "AnswerSheet")
-df = pd.read_excel(dirs[1], "RawData")
+key = pd.read_excel(dirs[1], "AnswerSheet")
+df = pd.read_excel(dirs[0], "RawData")
 
 question_num = len(key)
 users = len(df)
@@ -226,44 +226,51 @@ def toRadar(df):
 # In[60]:
 
 
-index = 7
-print(df["First and Last Name"][index])
-print(toTable(index)[0])
-print(toTable(index)[1])
-
-# In[12]:
-
-
-print(df["First and Last Name"])
-
-# In[16]:
-
-
-i = 7
-print(df["First and Last Name"][i])
-tables = toTable(i)
-
-# In[59]:
-
-
-print(toTable(i)[0])
-
-# In[18]:
-
-
-print(toTable(i)[1])
+# index = 7
+# print(df["First and Last Name"][index])
+# print(toTable(index)[0])
+# print(toTable(index)[1])
+#
+# # In[12]:
+#
+#
+# print(df["First and Last Name"])
+#
+# # In[16]:
+#
+#
+# i = 7
+# print(df["First and Last Name"][i])
+# tables = toTable(i)
+#
+# # In[59]:
+#
+#
+# print(toTable(i)[0])
+#
+# # In[18]:
+#
+#
+# print(toTable(i)[1])
 
 i = 0
 for user in df["First and Last Name"]:
-    give, get = toTable(i)
-    get_path = "{}/{} GET.png".format(dirs[2], user)
     giv_path = "{}/{} GIVE.png".format(dirs[2], user)
-    get_fig = toRadar(toTable(i)[1])
-    giv_fig = toRadar(toTable(i)[0])
-    get_fig.savefig(get_path)
+    table = toTable(i)[0]
+    dfi.export(table, "{}/{} GIVE table.png".format(dirs[2], user), table_conversion='matplotlib')
+    giv_fig = toRadar(table)
     giv_fig.savefig(giv_path)
-    get_fig.clf()
     giv_fig.clf()
+    i = i + 1
+
+i = 0
+for user in df["First and Last Name"]:
+    final_path = "{}/{} GET.png".format(dirs[2], user)
+    table = toTable(i)[1]
+    dfi.export(table, "{}/{} GET table.png".format(dirs[2], user), table_conversion='matplotlib')
+    fig = toRadar(table)
+    fig.savefig(final_path)
+    fig.clf()
     i = i + 1
 
 # # In[19]:
