@@ -1,3 +1,5 @@
 .idea
 token.txt
 .xlsx
+build/
+venv/
