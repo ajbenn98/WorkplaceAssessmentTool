@@ -6,7 +6,7 @@
 
 import numpy as np
 import pandas as pd
-# import dataframe_image as dfi
+import dataframe_image as dfi
 from math import pi
 import matplotlib.pyplot as plt
 import PySimpleGUI as sg
@@ -257,7 +257,7 @@ i = 0
 for user in df["First and Last Name"]:
     giv_path = "{}/{} GIVE.png".format(dirs[2], user)
     table = toTable(i)[0]
-    # dfi.export(table, "{}/{} GIVE table.png".format(dirs[2], user), table_conversion='matplotlib')
+    dfi.export(table, "{}/{} GIVE table.png".format(dirs[2], user), table_conversion='matplotlib')
     giv_fig = toRadar(table)
     giv_fig.savefig(giv_path)
     giv_fig.clf()
@@ -267,7 +267,7 @@ i = 0
 for user in df["First and Last Name"]:
     final_path = "{}/{} GET.png".format(dirs[2], user)
     table = toTable(i)[1]
-    # dfi.export(table, "{}/{} GET table.png".format(dirs[2], user), table_conversion='matplotlib')
+    dfi.export(table, "{}/{} GET table.png".format(dirs[2], user), table_conversion='matplotlib')
     fig = toRadar(table)
     fig.savefig(final_path)
     fig.clf()
