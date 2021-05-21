@@ -8,10 +8,48 @@ import numpy as np
 import pandas as pd
 from math import pi
 import matplotlib.pyplot as plt
-
+import PySimpleGUI as sg
+import dataframe_image as dfi
+from bs4 import BeautifulSoup
+import pdfkit
+from PyPDF2 import PdfFileMerger
 
 # In[216]:
 
+sg.ChangeLookAndFeel('GreenTan')
+
+# ------ Menu Definition ------ #
+menu_def = [['File', ['Open', 'Save', 'Exit', 'Properties']],
+            ['Edit', ['Paste', ['Special', 'Normal', ], 'Undo'], ],
+            ['Help', 'About...'], ]
+
+layout = [
+    [sg.Text('Choose the Data File', size=(35, 1))],
+    [sg.Text('Data CSV', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Choose the Answer Key File', size=(35, 1))],
+    [sg.Text('Answer Key', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Choose the Preface Page(s) File', size=(35, 1))],
+    [sg.Text('Preface PDF', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Choose the End Page(s) File', size=(35, 1))],
+    [sg.Text('Endpage PDF', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Input Location of Build Folder', size=(35, 1))],
+    [sg.Text('Build Folder', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default Folder'), sg.FolderBrowse()],
+    [sg.Text('Choose a Destination Folder for the Final Results', size=(75, 1))],
+    [sg.Text('Destination Folder', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default Folder'), sg.FolderBrowse()],
+    [sg.Submit(tooltip='Click to submit this window'), sg.Cancel()]
+]
+
+window = sg.Window('Workplace Assessment Tool', layout, default_element_size=(40, 1), grab_anywhere=False)
+
+event, dirs = window.read()
+
+window.close()
 
 def respOut(argument):
     response = {
@@ -25,9 +63,10 @@ def respOut(argument):
 # In[220]:
 
 
-key = pd.read_csv("7 Forms of Respect Master Key.csv")
-df = pd.read_csv("Workplace Communication Assessment_3.2.2021.csv")
-
+key = pd.read_csv(dirs[1])
+df = pd.read_csv(dirs[0])
+# key = pd.read_excel(dirs[1], "AnswerSheet")
+# df = pd.read_excel(dirs[0], "RawData")
 
 # In[144]:
 
@@ -116,3 +155,43 @@ def toRadar(df):
     plt.legend(loc='upper right', bbox_to_anchor=(0, 0.3))
     return plt
 
+i = 0
+for user in df["First and Last Name"]:
+    giv_path = "{}/{} GIVE.png".format(dirs[3], user)
+    table = toTable(i)[0]
+    # dfi.export(table, "{}/{} GIVE table.png".format(dirs[2], user), table_conversion='matplotlib')
+    giv_fig = toRadar(table)
+    giv_fig.savefig(giv_path)
+    giv_fig.clf()
+    i = i + 1
+
+i = 0
+for user in df["First and Last Name"]:
+    final_path = "{}/{} GET.png".format(dirs[3], user)
+    table = toTable(i)[1]
+    # dfi.export(table, "{}/{} GET table.png".format(dirs[2], user), table_conversion='matplotlib')
+    fig = toRadar(table)
+    fig.savefig(final_path)
+    fig.clf()
+    i = i + 1
+
+# for user, email in (df["First and Last Name"], df["Email"]):
+#     results = open("{}/results.html".format(dirs[3]))
+#     soup = BeautifulSoup(results)
+#     final_path = "{}/{}_{}.pdf".format(dirs[2], email, user)
+#     giv_path = "{}/{} GIVE.png".format(dirs[3], user)
+#     get_path = "{}/{} GIVE.png".format(dirs[3], user)
+#     giv_chart = soup.find(id="give-plot")
+#     giv_chart['src'] = giv_path
+#     get_chart = soup.find(id="get-plot")
+#     get_chart['src'] = get_path
+#     soup.find(id="give-detail").string.replace_with("INSERT GIVE DETAIL HERE")
+#     soup.find(id="get-detail").string.replace_with("INSERT GET DETAIL HERE")
+#     desc = soup.find_all(id="lang-descript")
+#     for d in desc:
+#         d.string.replace_with("INSERT DESCRIPTIONS HERE")
+#     results.close()
+#     html = soup.prettify("utf-8")
+#     with open("{}/output.html".format(dirs[3]), "wb") as file:
+#         file.write(html)
+#     pdfkit.from_file("{}/output.html".format(dirs[3]), final_path)

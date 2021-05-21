@@ -8,8 +8,20 @@ import numpy as np
 import pandas as pd
 import dataframe_image as dfi
 from math import pi
+# import matplotlib as mpl
 import matplotlib.pyplot as plt
 import PySimpleGUI as sg
+from bs4 import BeautifulSoup
+import pdfkit
+from PyPDF2 import PdfFileMerger
+# import matplotlib.font_manager as font_manager
+# import os
+
+# path = os.path.join(mpl.rcParams["datapath"], "fonts/ttf/RobotoCondensed.ttf")
+# prop = font_manager.FontProperties(fname=path)
+# plt.rcParams['font.family'] = prop.get_name()
+
+# In[216]:
 
 sg.ChangeLookAndFeel('GreenTan')
 
@@ -19,13 +31,22 @@ menu_def = [['File', ['Open', 'Save', 'Exit', 'Properties']],
             ['Help', 'About...'], ]
 
 layout = [
-    [sg.Text('Choose the Data CSV', size=(35, 1))],
+    [sg.Text('Choose the Data File', size=(35, 1))],
     [sg.Text('Data CSV', size=(15, 1), auto_size_text=False, justification='right'),
      sg.InputText('Default File'), sg.FileBrowse()],
-    [sg.Text('Choose the Answer Key CSV', size=(35, 1))],
+    [sg.Text('Choose the Answer Key File', size=(35, 1))],
     [sg.Text('Answer Key', size=(15, 1), auto_size_text=False, justification='right'),
      sg.InputText('Default File'), sg.FileBrowse()],
-    [sg.Text('Choose a Destination Folder for the Results', size=(35, 1))],
+    [sg.Text('Choose the Preface Page(s) File', size=(35, 1))],
+    [sg.Text('Preface PDF', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Choose the End Page(s) File', size=(35, 1))],
+    [sg.Text('Endpage PDF', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default File'), sg.FileBrowse()],
+    [sg.Text('Input Location of Build Folder', size=(35, 1))],
+    [sg.Text('Build Folder', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default Folder'), sg.FolderBrowse()],
+    [sg.Text('Choose a Destination Folder for the Final Results', size=(75, 1))],
     [sg.Text('Destination Folder', size=(15, 1), auto_size_text=False, justification='right'),
      sg.InputText('Default Folder'), sg.FolderBrowse()],
     [sg.Submit(tooltip='Click to submit this window'), sg.Cancel()]
@@ -36,7 +57,6 @@ window = sg.Window('Workplace Assessment Tool', layout, default_element_size=(40
 event, dirs = window.read()
 
 window.close()
-
 
 def respOut(argument):
     response = {
@@ -254,31 +274,88 @@ def toRadar(df):
 # print(toTable(i)[1])
 
 i = 0
-for user in df["First and Last Name"]:
-    giv_path = "{}/{} GIVE.png".format(dirs[2], user)
+for user, email in zip(df["First and Last Name"], df['Email']):
+    giv_path = "{}/{}_{} GIVE.png".format(dirs[4], email, user)
     table = toTable(i)[0]
-    dfi.export(table, "{}/{} GIVE table.png".format(dirs[2], user), table_conversion='matplotlib')
+    dfi.export(table, "{}/{}_{} GIVE table.png".format(dirs[4], email, user), table_conversion='matplotlib')
     giv_fig = toRadar(table)
     giv_fig.savefig(giv_path)
     giv_fig.clf()
     i = i + 1
 
 i = 0
-for user in df["First and Last Name"]:
-    final_path = "{}/{} GET.png".format(dirs[2], user)
+for user, email in zip(df["First and Last Name"], df['Email']):
+    final_path = "{}/{}_{} GET.png".format(dirs[4], email, user)
     table = toTable(i)[1]
-    dfi.export(table, "{}/{} GET table.png".format(dirs[2], user), table_conversion='matplotlib')
+    dfi.export(table, "{}/{}_{} GET table.png".format(dirs[4], email, user), table_conversion='matplotlib')
     fig = toRadar(table)
     fig.savefig(final_path)
     fig.clf()
     i = i + 1
 
-# # In[19]:
-#
-#
-# toRadar(toTable(i)[0]).show()
-#
-# # In[21]:
-#
-#
-# toRadar(toTable(i)[1]).show()
+options = {
+    'minimum-font-size': "20",
+    'header-font-size': "24",
+    'page-size': "Letter",
+}
+
+for user, email in zip(df["First and Last Name"], df['Email']):
+    results = open("{}/results.html".format(dirs[4]))
+    soup = BeautifulSoup(results)
+    build_path = "{}/{}_{} GET.pdf".format(dirs[4], email, user)
+    img_path = "{}/{}_{} GET.png".format(dirs[4], email, user)
+    tbl_path = "{}/{}_{} GET table.png".format(dirs[4], email, user)
+    title = "{}'s 7 Forms of Respect™ Results".format(user)
+    subtitle = "How You Expect to Get Respect"
+    giv_chart = soup.find(id="plot")
+    giv_chart['src'] = img_path
+    giv_chart = soup.find(id="table")
+    giv_chart['src'] = tbl_path
+    soup.find(id="title").string.replace_with(title)
+    soup.find(id="subtitle").string.replace_with(subtitle)
+    # soup.find(id="give-detail").string.replace_with("INSERT GIVE DETAIL HERE")
+    # soup.find(id="get-detail").string.replace_with("INSERT GET DETAIL HERE")
+    # desc = soup.find_all(id="lang-descript")
+    # for d in desc:
+    #     d.string.replace_with("INSERT DESCRIPTIONS HERE")
+    results.close()
+    html = soup.prettify("utf-8")
+    with open("{}/output.html".format(dirs[4]), "wb") as file:
+        file.write(html)
+    pdfkit.from_file("{}/output.html".format(dirs[4]), build_path, options=options)
+
+for user, email in zip(df["First and Last Name"], df['Email']):
+    results = open("{}/results.html".format(dirs[4]))
+    soup = BeautifulSoup(results)
+    build_path = "{}/{}_{} GIVE.pdf".format(dirs[4], email, user)
+    img_path = "{}/{}_{} GIVE.png".format(dirs[4], email, user)
+    tbl_path = "{}/{}_{} GIVE table.png".format(dirs[4], email, user)
+    title = "{}'s 7 Forms of Respect™ Results".format(user)
+    subtitle = "How You Give Respect"
+    giv_chart = soup.find(id="plot")
+    giv_chart['src'] = img_path
+    giv_chart = soup.find(id="table")
+    giv_chart['src'] = tbl_path
+    soup.find(id="title").string.replace_with(title)
+    soup.find(id="subtitle").string.replace_with(subtitle)
+    # soup.find(id="give-detail").string.replace_with("INSERT GIVE DETAIL HERE")
+    # soup.find(id="get-detail").string.replace_with("INSERT GET DETAIL HERE")
+    # desc = soup.find_all(id="lang-descript")
+    # for d in desc:
+    #     d.string.replace_with("INSERT DESCRIPTIONS HERE")
+    results.close()
+    html = soup.prettify("utf-8")
+    with open("{}/output.html".format(dirs[4]), "wb") as file:
+        file.write(html)
+    pdfkit.from_file("{}/output.html".format(dirs[4]), build_path, options=options)
+
+for user, email in zip(df["First and Last Name"], df['Email']):
+    pdfs = [dirs[2], "{}/{}_{} GIVE.pdf".format(dirs[4], email, user),
+            "{}/{}_{} GET.pdf".format(dirs[4], email, user), dirs[3]]
+    merger = PdfFileMerger()
+
+    for pdf in pdfs:
+        merger.append(pdf)
+
+    merger.write("{}/{}_{}.pdf".format(dirs[5], email, user))
+    merger.close()
