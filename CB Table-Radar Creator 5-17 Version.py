@@ -237,6 +237,7 @@ for user, email in zip(df["First and Last Name"], df['Email']):
 options = {
     'minimum-font-size': "20",
     'page-size': "A4",
+    'enable-local-file-access': "",
 }
 
 # print GET results pages
@@ -298,7 +299,7 @@ for user, email in zip(df["First and Last Name"], df['Email']):
     merger = PdfFileMerger()
 
     for pdf in pdfs:
-        merger.append(pdf)
+        merger.append(pdf, import_bookmarks=False)
 
     merger.write("{}/{}_{}.pdf".format(dirs[6], email, user))
     merger.close()
