@@ -231,7 +231,6 @@ def generate_table_imgs(dim3_num):
         table_fig, give_ax = render_mpl_table(table[dim3_num], header_columns=0, col_width=2.0)
         table_fig.savefig("{}/{}_{} {} table.png".format(dirs[4], email_t, user_t, dim3_num))
         table_fig.clf()
-        # plt.close()
         b = b + 1
 
 
@@ -246,6 +245,8 @@ options = {
 def generate_pdf_result(dim3_num):
     w = 0
     for user_p, email_p in zip(df["First and Last Name"], df['Email']):
+        print("Printing result page #{} for user {} out of {} ({})".format(dim3_num + 1, w + 1,
+                                                                   len(df["First and Last Name"]), user_p))
         results = open("{}/results.html".format(dirs[5]))
         soup = BeautifulSoup(results)
         build_path = "{}/{}_{} {}.pdf".format(dirs[4], email_p, user_p, dim3_num)
@@ -259,10 +260,7 @@ def generate_pdf_result(dim3_num):
         giv_chart = soup.find(id="table")
         giv_chart['src'] = tbl_path
         top_lang = get_top_lang(toTable(w)[dim3_num])
-        print(top_lang)
-        print(dim3[dim3_num])
         details = getDetail(dim1Name=top_lang, dim3Name=dim3[dim3_num])
-        print(details)
         soup.find(id="title").string.replace_with(title)
         soup.find(id="subtitle").string.replace_with(subtitle)
         soup.find(id="top-lang").string.replace_with("Your top language for this section is <strong>{}</strong>"
@@ -301,3 +299,5 @@ for user, email in zip(df["First and Last Name"], df['Email']):
         merger.append(pdf, import_bookmarks=False)
     merger.write("{}/{}_{}.pdf".format(dirs[6], email, user))
     merger.close()
+
+print("Results for all users have been generated! Operation complete.")
