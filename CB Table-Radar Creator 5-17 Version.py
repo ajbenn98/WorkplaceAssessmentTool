@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 from math import pi
 import matplotlib.pyplot as plt
-# import dataframe_image as dfi
 import PySimpleGUI as sg
 from bs4 import BeautifulSoup
 import pdfkit
@@ -38,6 +37,9 @@ layout = [
      sg.InputText('Default File'), sg.FileBrowse()],
     [sg.Text('Input Location of Build Folder', size=(35, 1))],
     [sg.Text('Build Folder', size=(15, 1), auto_size_text=False, justification='right'),
+     sg.InputText('Default Folder'), sg.FolderBrowse()],
+    [sg.Text('Input Location of Source File Folder', size=(35, 1))],
+    [sg.Text('Source Folder', size=(15, 1), auto_size_text=False, justification='right'),
      sg.InputText('Default Folder'), sg.FolderBrowse()],
     [sg.Text('Choose a Destination Folder for the Final Results', size=(75, 1))],
     [sg.Text('Destination Folder', size=(15, 1), auto_size_text=False, justification='right'),
@@ -239,7 +241,7 @@ options = {
 
 # print GET results pages
 for user, email in zip(df["First and Last Name"], df['Email']):
-    results = open("./source/results.html")
+    results = open("{}/results.html".format(dirs[5]))
     soup = BeautifulSoup(results)
     build_path = "{}/{}_{} GET.pdf".format(dirs[4], email, user)
     img_path = "{}/{}_{} GET.png".format(dirs[4], email, user)
@@ -259,13 +261,13 @@ for user, email in zip(df["First and Last Name"], df['Email']):
     #     d.string.replace_with("INSERT DESCRIPTIONS HERE")
     results.close()
     html = soup.prettify("utf-8")
-    with open("./source/output.html", "wb") as file:
+    with open("{}/output.html".format(dirs[5]), "wb") as file:
         file.write(html)
-    pdfkit.from_file("./source/output.html", build_path, options=options)
+    pdfkit.from_file("{}/output.html".format(dirs[5]), build_path, options=options)
 
 # print GIVE results pages
 for user, email in zip(df["First and Last Name"], df['Email']):
-    results = open("./source/results.html")
+    results = open("{}/results.html".format(dirs[5]))
     soup = BeautifulSoup(results)
     build_path = "{}/{}_{} GIVE.pdf".format(dirs[4], email, user)
     img_path = "{}/{}_{} GIVE.png".format(dirs[4], email, user)
@@ -285,9 +287,9 @@ for user, email in zip(df["First and Last Name"], df['Email']):
     #     d.string.replace_with("INSERT DESCRIPTIONS HERE")
     results.close()
     html = soup.prettify("utf-8")
-    with open("./source/output.html", "wb") as file:
+    with open("{}/output.html".format(dirs[5]), "wb") as file:
         file.write(html)
-    pdfkit.from_file("./source/output.html", build_path, options=options)
+    pdfkit.from_file("{}/output.html".format(dirs[5]), build_path, options=options)
 
 # merge all pages together for each user
 for user, email in zip(df["First and Last Name"], df['Email']):
@@ -298,5 +300,5 @@ for user, email in zip(df["First and Last Name"], df['Email']):
     for pdf in pdfs:
         merger.append(pdf)
 
-    merger.write("{}/{}_{}.pdf".format(dirs[5], email, user))
+    merger.write("{}/{}_{}.pdf".format(dirs[6], email, user))
     merger.close()
