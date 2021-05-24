@@ -253,7 +253,6 @@ def generate_pdf_result(dim3_num):
         img_path = "{}/{}_{} {}.png".format(dirs[4], email_p, user_p, dim3_num)
         tbl_path = "{}/{}_{} {} table.png".format(dirs[4], email_p, user_p, dim3_num)
         all_titles = get_titles()
-        print(all_titles)
         title = "{}'s {}".format(user_p, all_titles[0])
         subtitle = all_titles[dim3_num + 1]
         giv_chart = soup.find(id="plot")
@@ -284,14 +283,21 @@ def generate_pdf_result(dim3_num):
 
 # generate all radar plots
 for g in range(0, len(dim3)):
+    print("Generating all radar plots...")
     generate_radar_imgs(g)
+    print("...Radar plot generation complete")
 
 # generate all info tables and generate single-page result PDFs
 for g in range(0, len(dim3)):
+    print("Generating all info table images...")
     generate_table_imgs(g)
+    print("...Info table image generation completed")
+    print("Generating single-page PDFs...")
     generate_pdf_result(g)
+    print("... Single-page PDFs have been generated")
 
 # merge all pages together for each user
+print("Now generating final results PDFs...")
 for user, email in zip(df["First and Last Name"], df['Email']):
     pdfs = [dirs[2], dirs[3]]
     for k in range(0, len(dim3)):
@@ -302,4 +308,4 @@ for user, email in zip(df["First and Last Name"], df['Email']):
     merger.write("{}/{}_{}.pdf".format(dirs[6], email, user))
     merger.close()
 
-print("Results for all users have been generated! Operation complete.")
+print("...Results for all users have been generated! Operation complete.")
