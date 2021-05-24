@@ -181,9 +181,9 @@ def get_lang_defs():
 
 
 def get_titles():
-    output = [""] * 5
+    output = [""] * 9
     output[0] = key["Assessment Details"][0]
-    for i in range(4):
+    for i in range(8):
         output[i + 1] = key["Assessment Details"][i + 4]
     return output
 
@@ -253,18 +253,20 @@ def generate_pdf_result(dim3_num):
         img_path = "{}/{}_{} {}.png".format(dirs[4], email_p, user_p, dim3_num)
         tbl_path = "{}/{}_{} {} table.png".format(dirs[4], email_p, user_p, dim3_num)
         all_titles = get_titles()
+        print(all_titles)
         title = "{}'s {}".format(user_p, all_titles[0])
         subtitle = all_titles[dim3_num + 1]
         giv_chart = soup.find(id="plot")
         giv_chart['src'] = img_path
         giv_chart = soup.find(id="table")
         giv_chart['src'] = tbl_path
+        info_blurb = all_titles[dim3_num + 5]
         top_lang = get_top_lang(toTable(w)[dim3_num])
         details = getDetail(dim1Name=top_lang, dim3Name=dim3[dim3_num])
         soup.find(id="title").string.replace_with(title)
         soup.find(id="subtitle").string.replace_with(subtitle)
-        soup.find(id="top-lang").string.replace_with("Your top language for this section is <strong>{}</strong>"
-                                                     .format(top_lang.upper()))
+        soup.find(id="top-lang").string.replace_with("{} <strong>{}</strong>"
+                                                     .format(info_blurb, top_lang.upper()))
         soup.find(id="top-desc").string.replace_with(details[0])
         soup.find(id="top-question").string.replace_with(details[1])
         desc = get_lang_defs()
