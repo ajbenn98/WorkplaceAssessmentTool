@@ -181,9 +181,9 @@ def get_lang_defs():
 
 
 def get_titles():
-    output = [""] * 9
+    output = [""] * 10
     output[0] = key["Assessment Details"][0]
-    for i in range(8):
+    for i in range(9):
         output[i + 1] = key["Assessment Details"][i + 4]
     return output
 
@@ -257,6 +257,7 @@ def generate_pdf_result(dim3_num):
         tbl_path = "{}/{}_{} {} table.png".format(dirs[4], email_p, user_p, dim3_num)
         all_titles = get_titles()
         title = "{}'s {}".format(user_p, all_titles[0])
+        lang_title = all_titles[9]
         subtitle = all_titles[dim3_num + 1]
         giv_chart = soup.find(id="plot")
         giv_chart['src'] = img_path
@@ -271,6 +272,7 @@ def generate_pdf_result(dim3_num):
                                                      .format(info_blurb, top_lang.upper()))
         soup.find(id="top-desc").string.replace_with(details[0])
         soup.find(id="top-question").string.replace_with(details[1])
+        soup.find(id="lang-title").string.replace_with("{}:".format(lang_title))
         desc = get_lang_defs()
         for d in range(0, len(desc[0])):
             html_id = "lang-descript-{}".format(d)
