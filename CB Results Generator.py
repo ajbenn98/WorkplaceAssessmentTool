@@ -240,6 +240,9 @@ options = {
     'enable-local-file-access': "",
 }
 
+config_path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+config = pdfkit.configuration(wkhtmltopdf=config_path)
+
 
 # generates a single result page
 def generate_pdf_result(dim3_num):
@@ -278,7 +281,7 @@ def generate_pdf_result(dim3_num):
         html = soup.prettify("utf-8", formatter=None)
         with open("{}/output.html".format(dirs[5]), "wb") as file:
             file.write(html)
-        pdfkit.from_file("{}/output.html".format(dirs[5]), build_path, options=options)
+        pdfkit.from_file("{}/output.html".format(dirs[5]), build_path, options=options, configuration=config)
 
 
 # generate all radar plots
