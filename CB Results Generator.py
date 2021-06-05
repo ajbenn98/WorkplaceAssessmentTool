@@ -52,7 +52,6 @@ window.close()
 key = pd.read_excel(dirs[1])
 df = pd.read_excel(dirs[0])
 
-
 qNum = len(key["Question"].dropna())
 dim1 = key["Dimension #1 Key"].dropna().unique().tolist()
 dim2 = key["Dimension #2 Key"].dropna().unique().tolist()
@@ -167,8 +166,8 @@ def getDetail(dim1Name, dim2Name="", dim3Name=""):
     return output
 
 
-def get_top_lang(df):
-    return df.iloc[:, 0][df["Total"].idxmax()]
+def get_top_lang(df, dim3_num):
+    return df.loc[df['Total'] == df['Total'].max(), dim3[dim3_num]]
 
 
 def get_lang_defs():
@@ -236,7 +235,7 @@ def generate_table_imgs(dim3_num):
 
 options = {
     'minimum-font-size': "20",
-    'page-size': "A4",
+    'page-size': "Letter",
     'enable-local-file-access': "",
 }
 
@@ -246,7 +245,7 @@ def generate_pdf_result(dim3_num):
     w = 0
     for user_p, email_p in zip(df["First and Last Name"], df['Email']):
         print("Printing result page #{} for user {} out of {} ({})".format(dim3_num + 1, w + 1,
-                                                                   len(df["First and Last Name"]), user_p))
+                                                                           len(df["First and Last Name"]), user_p))
         results = open("{}/results.html".format(dirs[5]))
         soup = BeautifulSoup(results)
         build_path = "{}/{}_{} {}.pdf".format(dirs[4], email_p, user_p, dim3_num)
@@ -261,14 +260,17 @@ def generate_pdf_result(dim3_num):
         giv_chart = soup.find(id="table")
         giv_chart['src'] = tbl_path
         info_blurb = all_titles[dim3_num + 5]
-        top_lang = get_top_lang(toTable(w)[dim3_num])
-        details = getDetail(dim1Name=top_lang, dim3Name=dim3[dim3_num])
+        top_lang = get_top_lang(toTable(w)[dim3_num], dim3_num)
+        h = 0
+        for lang in top_lang:
+            details = getDetail(dim1Name=lang, dim3Name=dim3[dim3_num])
+            soup.find(id="top-lang-{}".format(h)).string.replace_with("{} <strong>{}</strong>"
+                                                                      .format(info_blurb, lang.upper()))
+            soup.find(id="top-desc-{}".format(h)).string.replace_with(details[0])
+            soup.find(id="top-question-{}".format(h)).string.replace_with(details[1])
+            h = h + 1
         soup.find(id="title").string.replace_with(title)
         soup.find(id="subtitle").string.replace_with(subtitle)
-        soup.find(id="top-lang").string.replace_with("{} <strong>{}</strong>"
-                                                     .format(info_blurb, top_lang.upper()))
-        soup.find(id="top-desc").string.replace_with(details[0])
-        soup.find(id="top-question").string.replace_with(details[1])
         soup.find(id="lang-title").string.replace_with("{}:".format(lang_title))
         desc = get_lang_defs()
         for d in range(0, len(desc[0])):
